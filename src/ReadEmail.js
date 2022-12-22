@@ -9,6 +9,7 @@ const notifier = require('mail-notifier');
 
 app.use(express.json())
 
+
 const imap = {
     user: process.env.USER_EMAIL,
     password: process.env.USER_PASSWORD,
@@ -72,6 +73,7 @@ function readEmail() {
                         num = checkEvent.at(0).HOUR_EVENT
                         console.log('num', num)
                         console.log('hour', hour)
+                        console.log('repeat', repeat)
                     } catch (e) {
                         console.log('error checkRepeatedEvent', e);
                     }
