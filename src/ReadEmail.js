@@ -31,7 +31,7 @@ function readEmail() {
             let year = date.getFullYear();;
             let hour = date.getHours(-3);
             let minute = date.getMinutes();
-            let eventTime = hour + "," + minute
+            let eventTime = hour + "." + minute
             let seconds = date.getSeconds();
             let milliseconds = date.getMilliseconds();
             let dateEvent = `${year}-${month}-${day}T${hour}:${minute}:${seconds}Z`
@@ -62,33 +62,58 @@ function readEmail() {
                 let idEmp = mailSubject.slice(12, 18)
                 let error = 'VIDEO SIGNAL LOST'
                 let channels = mailSubject.match(/[D]+[0-9]+/g)
-                let repeat = 'REPETIDO'
+                let status = 'PENDENTE'
+                let tolerance = 1
 
                 async function checkRepeatedEvent() {
                     try {
-                        let num, num1, num2
-                        const checkEvent = await dbMysql.query(`SELECT id_evento, CSID, PARTITION_, EVENT_TYPE, CHANNEL_ HOUR_EVENT FROM eventos_dvr.events order by id_evento asc limit 5;`, { type: dbMysql.QueryTypes.SELECT })
-                        console.log('checkEvent', checkEvent)
+                        let event5
+                        let testTime = hour
+                        // 8:32 
+                        // 9:49   - 1 8:20 <  evento repetido 
+                        // 10:20  - 1 = 9:20 > evento nao repetido
+                        let checkEvent
+                        try {
+                            checkEvent = await dbMysql.query(`SELECT id_evento, CSID, PARTITION_, EVENT_TYPE, CHANNEL_, HOUR_EVENT FROM eventos_dvr.events where CSID= '${csid}' and CHANNEL_ = '${channels}' order by id_evento desc limit 1;`, { type: dbMysql.QueryTypes.SELECT })
+                            if (checkEvent == 0 || null){
+                                sendDataBase()
+                            }
+                        } catch (e) {
 
-                        num = checkEvent.at(0).HOUR_EVENT
-                        console.log('num', num)
-                        console.log('hour', hour)
-                        console.log('repeat', repeat)
+                        }
+                        console.log('checkEvent', checkEvent)
+                        console.log('testTime', testTime)
+
+                        event5 = parseFloat(checkEvent.at(0).HOUR_EVENT)
+                        testTime - tolerance
+
+                        if (testTime < event5) {
+                            console.log('evento repetido')
+                            status = 'REPETIDO'
+                            sendDataBase()
+                            return
+                        } else {
+                            console.log('evento nao repetido')
+                            sendDataBase()
+                            return
+                        }
                     } catch (e) {
                         console.log('error checkRepeatedEvent', e);
                     }
+                    console.log('debug status', status)
                 } checkRepeatedEvent()
 
                 async function sendDataBase() {
                     try {
+                        console.log('debug status1', status)
                         await dbMysql.query(`
-                                INSERT INTO eventos_dvr.events ( EMAIL_SUBJECT, CSID, PARTITION_, ID_EMPRESA, EVENT_TYPE, CHANNEL_, DT_CREATED, HOUR_EVENT) VALUES ( '${mailSubject}', '${csid}', '${partition}','${idEmp}', '${error}', '${channels}','${dateEvent}', '${eventTime}');
+                                INSERT INTO eventos_dvr.events ( EMAIL_SUBJECT, CSID, PARTITION_, ID_EMPRESA, EVENT_TYPE, CHANNEL_, STATUS_, DT_CREATED, HOUR_EVENT) VALUES ( '${mailSubject}', '${csid}', '${partition}','${idEmp}', '${error}', '${channels}', '${status}','${dateEvent}', '${eventTime}');
                             `)
                         console.log('Event inserted successfully');
                     } catch (e) {
                         console.log('error insert', e);
                     }
-                } sendDataBase()
+                }
             }
             else {
                 console.log('email desconsiderado: ', mailSubject);
