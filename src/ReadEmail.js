@@ -43,6 +43,28 @@ function readEmail() {
           let csid = mailSubject.slice(0, 4);
           let idEmp = mailSubject.slice(12, 18);
 
+          async function checkRepeatedEvent() {
+            let checkEvent_csid = csid;
+            let checkEvent_channels = channels;
+
+            try {
+              const checkEvent = await dbMysql.query( process.env.SELECT_1_HOUR_EVENT, { type: dbMysql.QueryTypes.SELECT }
+              );
+              console.log(checkEvent)
+              for (const obj of checkEvent) {
+                if (
+                  obj.CSID == checkEvent_csid &&
+                  obj.CHANNEL == checkEvent_channels
+                ) {
+                  console.log("Pimba", obj.CSID, obj.CHANNEL);
+                  return console.log("Evento já cadastrado");
+                }                
+              }sendDataBase()
+            } catch (e) {
+              console.log("error select check event", e);
+            }
+          } checkRepeatedEvent();
+
           async function sendDataBase() {
             try {
               await dbMysql.query(`
@@ -68,9 +90,9 @@ function readEmail() {
             let checkEvent_channels = channels;
 
             try {
-              const checkEvent = await dbMysql.query( process.env.SELECT_1_HOUR_EVENT, { type: dbMysql.QueryTypes.SELECT }
+              const checkEvent = await dbMysql.query( process.env.SELECT_1_HOUR_EVENT_SIGNAL_LOST, { type: dbMysql.QueryTypes.SELECT }
               );
-              console.log(checkEvent)
+              console.log
               for (const obj of checkEvent) {
                 if (
                   obj.CSID == checkEvent_csid &&
