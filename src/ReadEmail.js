@@ -46,7 +46,7 @@ function readEmail() {
                 async function sendDataBase() {
                     try {
                         await dbMysql.query(`
-                                INSERT INTO eventos_dvr.events ( EMAIL_SUBJECT, PARTITION_,  CSID, ID_EMPRESA, EVENT_TYPE, DT_CREATED) VALUES ( '${mailSubject}', '${partition}','${csid}', '${idEmp}', '${error}', '${dateEvent}');
+                                INSERT INTO DB_EVENTO ( EMAIL_SUBJECT, PARTICAO,  CSID, ID_EMPRESA, TIPO_EVENTO, DT_CREATED) VALUES ( '${mailSubject}', '${partition}','${csid}', '${idEmp}', '${error}', '${dateEvent}');
                             `)
                         console.log('Event inserted successfully');
                     } catch (e) {
@@ -65,55 +65,55 @@ function readEmail() {
                 let status = 'PENDENTE'
                 let tolerance = 1
 
-                async function checkRepeatedEvent() {
-                    try {
-                        let event5
-                        let testTime = hour
-                        // 8:32 
-                        // 9:49   - 1 8:20 <  evento repetido 
-                        // 10:20  - 1 = 9:20 > evento nao repetido
-                        let checkEvent
-                        try {
-                            checkEvent = await dbMysql.query(`SELECT id_evento, CSID, PARTITION_, EVENT_TYPE, CHANNEL_, HOUR_EVENT FROM eventos_dvr.events where CSID= '${csid}' and CHANNEL_ = '${channels}' order by id_evento desc limit 1;`, { type: dbMysql.QueryTypes.SELECT })
-                            if (checkEvent == 0 || null){
-                                sendDataBase()
-                            }
-                        } catch (e) {
+                // async function checkRepeatedEvent() {
+                //     try {
+                //         let event5
+                //         let testTime = hour
+                //         // 8:32 
+                //         // 9:49   - 1 8:20 <  evento repetido 
+                //         // 10:20  - 1 = 9:20 > evento nao repetido
+                //         let checkEvent
+                //         try {
+                //             checkEvent = await dbMysql.query(`SELECT id_evento, CSID, PARTITION_, EVENT_TYPE, CHANNEL_, HOUR_EVENT FROM eventos_dvr.events where CSID= '${csid}' and CHANNEL_ = '${channels}' order by id_evento desc limit 1;`, { type: dbMysql.QueryTypes.SELECT })
+                //             if (checkEvent == 0 || null){
+                //                 sendDataBase()
+                //             }
+                //         } catch (e) {
+                           
+                //         }
+                //         console.log('checkEvent', checkEvent)
+                //         console.log('testTime', testTime)
 
-                        }
-                        console.log('checkEvent', checkEvent)
-                        console.log('testTime', testTime)
+                //         event5 = parseFloat(checkEvent.at(0).HOUR_EVENT)
+                //         testTime - tolerance
 
-                        event5 = parseFloat(checkEvent.at(0).HOUR_EVENT)
-                        testTime - tolerance
-
-                        if (testTime < event5) {
-                            console.log('evento repetido')
-                            status = 'REPETIDO'
-                            sendDataBase()
-                            return
-                        } else {
-                            console.log('evento nao repetido')
-                            sendDataBase()
-                            return
-                        }
-                    } catch (e) {
-                        console.log('error checkRepeatedEvent', e);
-                    }
-                    console.log('debug status', status)
-                } checkRepeatedEvent()
+                //         if (testTime < event5) {
+                //             console.log('evento repetido')
+                //             status = 'REPETIDO'
+                //             sendDataBase()
+                //             return
+                //         } else {
+                //             console.log('evento nao repetido')
+                //             sendDataBase()
+                //             return
+                //         }
+                //     } catch (e) {
+                //         console.log('error checkRepeatedEvent', e);
+                //     }
+                //     console.log('debug status', status)
+                // } checkRepeatedEvent()
 
                 async function sendDataBase() {
                     try {
                         console.log('debug status1', status)
                         await dbMysql.query(`
-                                INSERT INTO eventos_dvr.events ( EMAIL_SUBJECT, CSID, PARTITION_, ID_EMPRESA, EVENT_TYPE, CHANNEL_, STATUS_, DT_CREATED, HOUR_EVENT) VALUES ( '${mailSubject}', '${csid}', '${partition}','${idEmp}', '${error}', '${channels}', '${status}','${dateEvent}', '${eventTime}');
+                                INSERT INTO db_evento ( EMAIL_SUBJECT, CSID, PARTICAO, ID_EMPRESA, TIPO_EVENTO, CHANNEL, STATUS, DT_CREATED, HORA_EVENTO) VALUES ( '${mailSubject}', '${csid}', '${partition}','${idEmp}', '${error}', '${channels}', '${status}','${dateEvent}', '${eventTime}');
                             `)
                         console.log('Event inserted successfully');
                     } catch (e) {
                         console.log('error insert', e);
                     }
-                }
+                }; sendDataBase()
             }
             else {
                 console.log('email desconsiderado: ', mailSubject);
