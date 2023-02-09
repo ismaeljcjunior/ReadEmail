@@ -46,6 +46,7 @@ function readEmail() {
   
         if (mailSubject.includes("HDD ERROR")) {
           console.log("Evento de HDD ERROR");
+          console.log(mailSubject)
           let error = "HDD ERROR";
           let partition = parseInt(mailSubject.slice(6, 10).trim());
           let csid = mailSubject.slice(0, 4);
@@ -53,39 +54,41 @@ function readEmail() {
           let status = "PENDENTE";
           let statusRepetido = "REPETIDO";
 
-          // async function checkRepeatedEvent() {
-          //   let checkEvent_csid = csid;
-          //   let checkEvent_channels = channels;
+          async function checkRepeatedEvent() {
+            let checkEvent_csid = csid;
+            let checkEvent_TipoEvento = error;
 
-          //   try {
-          //     const checkEvent = await dbMysql.query( process.env.SELECT_1_HOUR_HDDERROR, { type: dbMysql.QueryTypes.SELECT }
-          //     );
-          //     console.log(checkEvent)
-          //     for (const obj of checkEvent) {
-          //       if (
-          //         obj.CSID == checkEvent_csid &&
-          //         obj.CHANNEL == checkEvent_channels
-          //       ) {
-          //         console.log("Pimba", obj.CSID, obj.CHANNEL);
-          //         return console.log("Evento já cadastrado");
-          //       }
-          //     }sendDataBase()
-          //   } catch (e) {
-          //     console.log("error select check event", e);
-          //   }
-          // } checkRepeatedEvent();
+            try {
+              const checkEventHDDERROR = await dbMysql.query( process.env.SELECT_1_HOUR_HDDERROR, { type: dbMysql.QueryTypes.SELECT }
+              );
+              
+              for (const obj of checkEventHDDERROR) {
+                if ( obj.CSID == checkEvent_csid &&  obj.TIPO_EVENTO == checkEvent_TipoEvento ) {
+                  console.log("Pimba", obj.CSID, obj.TIPO_EVENTO);
+                  try {
+                    await dbMysql.query( `INSERT INTO DB_EVENTO ( EMAIL_SUBJECT, PARTICAO,  CSID, ID_EMPRESA, TIPO_EVENTO, DT_CREATED, STATUS, HORA_EVENTO) VALUES ( '${mailSubject}', '${partition}','${csid}', '${idEmp}', '${error}', '${dateEvent}', '${statusRepetido}', '${eventTime}')` );
+                  } catch (e) {
+                    console.log("Error insertig repeat event", e);
+                  }
+                  return console.log("Evento já cadastrado");
+                }
+              }
+              sendDataBaseHDDERROR()
+            } catch (e) {
+              console.log("error select check event", e);
+            }
+          } checkRepeatedEvent();
 
           async function sendDataBaseHDDERROR() {
+            console.log('save event');
             try {
-              await dbMysql.query(
-                `INSERT INTO DB_EVENTO ( EMAIL_SUBJECT, PARTICAO,  CSID, ID_EMPRESA, TIPO_EVENTO, DT_CREATED, STATUS, HORA_EVENTO) VALUES ( '${mailSubject}', '${partition}','${csid}', '${idEmp}', '${error}', '${dateEvent}', '${status}', '${eventTime}');`
-              );
+              await dbMysql.query( `INSERT INTO DB_EVENTO ( EMAIL_SUBJECT, PARTICAO,  CSID, ID_EMPRESA, TIPO_EVENTO, DT_CREATED, STATUS, HORA_EVENTO) VALUES ( '${mailSubject}', '${partition}','${csid}', '${idEmp}', '${error}', '${dateEvent}', '${status}', '${eventTime}')` );
               console.log("Event inserted successfully");
             } catch (e) {
               console.log("error insert", e);
             }
-          }
-          sendDataBaseHDDERROR();
+          } 
+//----------------------------------------------------------------//        
         } else if (mailSubject.includes("VIDEO SIGNAL LOST")) {
           console.log("EVENTO de VIDEO SIGNAL LOST");
           let csid = mailSubject.slice(0, 4);
@@ -113,9 +116,7 @@ function readEmail() {
                 ) {
                   console.log("Pimba", obj.CSID, obj.CHANNEL);
                   try {
-                    await dbMysql.query(
-                      `INSERT INTO db_evento ( EMAIL_SUBJECT, CSID, PARTICAO, ID_EMPRESA, TIPO_EVENTO, CHANNEL, STATUS, DT_CREATED, HORA_EVENTO) VALUES ( '${mailSubject}', '${csid}', '${partition}','${idEmp}', '${error}', '${channels}', '${statusRepetido}','${dateEvent}', '${eventTime}');`
-                    );
+                    await dbMysql.query( `INSERT INTO db_evento ( EMAIL_SUBJECT, CSID, PARTICAO, ID_EMPRESA, TIPO_EVENTO, CHANNEL, STATUS, DT_CREATED, HORA_EVENTO) VALUES ( '${mailSubject}', '${csid}', '${partition}','${idEmp}', '${error}', '${channels}', '${statusRepetido}','${dateEvent}', '${eventTime}');` );
                   } catch (e) {
                     console.log("Error insertig repeat event", e);
                   }
