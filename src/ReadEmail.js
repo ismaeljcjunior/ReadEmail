@@ -142,7 +142,42 @@ function readEmail() {
             }
           }
           // sendDataBase();
-        } else {
+        } else if (mailSubject.includes("Recording Exception")){
+          console.log("EVENTO de RECORDING EXCEPTION");
+          let csid = mailSubject.slice(0, 4);
+          let partition = parseInt(mailSubject.slice(6, 10).trim());
+          let idEmp = mailSubject.slice(12, 18);
+          let error = "RECORDING EXCEPTION";
+          let channels = mailSubject.match(/[D]+[0-9]+/g);
+          let status = "PENDENTE";
+          let statusRepetido = "REPETIDO";
+
+          async function checkRepeatedEvent() {
+            let checkEvent_csid = csid;
+            let checkEvent_TipoEvento = error;
+
+            try {
+              const checkEventHDDERROR = await dbMysql.query( process.env.SELECT_1_HOUR_RECORD_EXCEPTION, { type: dbMysql.QueryTypes.SELECT }
+              );
+              
+              for (const obj of checkEventHDDERROR) {
+                if ( obj.CSID == checkEvent_csid &&  obj.TIPO_EVENTO == checkEvent_TipoEvento ) {
+                  console.log("Pimba", obj.CSID, obj.TIPO_EVENTO);
+                  try {
+                    await dbMysql.query( `INSERT INTO DB_EVENTO ( EMAIL_SUBJECT, PARTICAO,  CSID, ID_EMPRESA, TIPO_EVENTO, DT_CREATED, STATUS, HORA_EVENTO) VALUES ( '${mailSubject}', '${partition}','${csid}', '${idEmp}', '${error}', '${dateEvent}', '${statusRepetido}', '${eventTime}')` );
+                  } catch (e) {
+                    console.log("Error insertig repeat event", e);
+                  }
+                  return console.log("Evento já cadastrado");
+                }
+              }
+              // sendDataBaseHDDERROR()
+            } catch (e) {
+              console.log("error select check event", e);
+            }
+          } checkRepeatedEvent();
+
+        }else {
           console.log("email desconsiderado: ", mailSubject);
         }
       })
