@@ -5,14 +5,14 @@ const dbMysql = require("./config/dbMysql");
 const { QueryTypes } = require("sequelize");
 const expressPinoLogger = require("express-pino-logger");
 const logger = require("./utils/logger");
-const app = express();
 const notifier = require("mail-notifier");
+
 
 const loggerMidleware = expressPinoLogger({
   logger: logger,
   autoLogging: true,
 });
-
+const app = express();
 app.use(express.json());
 app.use(loggerMidleware);
 
