@@ -116,20 +116,19 @@ function readEmail() {
             let checkEvent_csid = csid;
             let checkEvent_channels = channels;
             let checkEvent_Particao = partition;
+            let checkEvent_idEmp = idEmp;
             try {
-              const checkEvent = await dbMysql.query(
-                process.env.SELECT_1_HOUR_EVENT_SIGNAL_LOST,
-                { type: dbMysql.QueryTypes.SELECT }
-              );
+              const checkEvent = await dbMysql.query( process.env.SELECT_1_HOUR_EVENT_SIGNAL_LOST,  { type: dbMysql.QueryTypes.SELECT }  );
               
               for (const obj of checkEvent) {
                 if (
                   obj.CSID == checkEvent_csid &&
                   obj.CHANNEL == checkEvent_channels &&
-                   obj.PARTICAO == checkEvent_Particao
+                   obj.PARTICAO == checkEvent_Particao &&
+                   obj.ID_EMPRESA == checkEvent_idEmp
                 ) {
-                  console.log("EVENTO REPETIDO", obj.CSID, obj.CHANNEL);
-                  logger.info("EVENTO REPETIDO", obj.CSID, obj.CHANNEL);
+                  console.log("EVENTO REPETIDO", obj.CSID, obj.CHANNEL, obj.PARTICAO, obj.ID_EMPRESA);
+                  logger.info("EVENTO REPETIDO", obj.CSID, obj.CHANNEL, obj.PARTICAO, obj.ID_EMPRESA);
                   try {
                     await dbMysql.query( `INSERT INTO db_evento ( EMAIL_SUBJECT, CSID, PARTICAO, ID_EMPRESA, TIPO_EVENTO, CHANNEL, STATUS, DT_CREATED, HORA_EVENTO) VALUES ( '${mailSubject}', '${csid}', '${partition}','${idEmp}', '${error}', '${channels}', '${statusRepetido}','${dateEvent}', '${eventTime}');`, { type: dbMysql.QueryTypes.INSERT } );
                   } catch (e) {
