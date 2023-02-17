@@ -1,4 +1,4 @@
-const pino = require('pino')
+const pino = require("pino");
 const levels = {
   http: 10,
   debug: 20,
@@ -8,16 +8,15 @@ const levels = {
   fatal: 60,
 };
 module.exports = pino(
-    {
+  {
     customLevels: levels, // our defined levels
     useOnlyCustomLevels: true,
-    level: 'http',
+    level: "http",
     prettyPrint: {
       colorize: true, // colorizes the log
       levelFirst: true,
-      translateTime: 'yyyy-dd-mm, h:MM:ss TT',
+      translateTime: "yyyy-dd-mm, h:MM:ss TT",
     },
-    
-  },  pino.destination(`${__dirname}/logger.log`)
-  )
-  
+  },
+  pino.destination(`${__dirname}/logger.log`)
+);
