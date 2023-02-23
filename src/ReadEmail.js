@@ -43,7 +43,8 @@ function readEmail() {
         let seconds = date.getSeconds();
         let milliseconds = date.getMilliseconds();
         let dateEvent = `${year}-${month}-${day}T${hour}:${minute}:${seconds}Z`;
-  
+        const  dateEventObject = new Date(Date.parse(dateEvent));
+
         if (mailSubject.includes("HDD ERROR")) {
           logger.info(mailSubject)
           logger.info("Evento de HDD ERROR");
@@ -73,7 +74,7 @@ function readEmail() {
                   logger.info("EVENTO REPETIDO", obj.CSID, obj.TIPO_EVENTO, obj.PARTICAO, obj.ID_EMPRESA);
                   try {
                  
-                    await dbMysql.query(`INSERT INTO evento_nvr_dvr.db_evento (EMAIL_SUBJECT, CSID, PARTICAO, ID_EMPRESA, TIPO_EVENTO, CHANNEL, STATUS, HORA_EVENTO, DT_CREATED, CHECAR_DATA) VALUES ('${mailSubject}', '${csid}', '${partition}', '${idEmp}', '${error}', '${channels}', '${statusRepetido}', '${eventTime}', '${dateEvent}', now());`);
+                    await dbMysql.query(`INSERT INTO evento_nvr_dvr.db_evento (EMAIL_SUBJECT, CSID, PARTICAO, ID_EMPRESA, TIPO_EVENTO, CHANNEL, STATUS, HORA_EVENTO, DT_CREATED, CHECAR_DATA) VALUES ('${mailSubject}', '${csid}', '${partition}', '${idEmp}', '${error}', '${channels}', '${statusRepetido}', '${eventTime}', '${dateEventObject}', now());`);
                   } catch (e) {
                     console.log("EVENTO SALVO, REPETIDO", e);
                     logger.info("EVENTO SALVO, REPETIDO", e);
@@ -91,7 +92,7 @@ function readEmail() {
             console.log('SALVANDO EVENTO');
             logger.info('SALVANDO EVENTO');
             try {
-              await dbMysql.query(`INSERT INTO evento_nvr_dvr.db_evento (EMAIL_SUBJECT, CSID, PARTICAO, ID_EMPRESA, TIPO_EVENTO, CHANNEL, STATUS, HORA_EVENTO, DT_CREATED, CHECAR_DATA) VALUES ('${mailSubject}', '${csid}', '${partition}', '${idEmp}', '${error}', '${channels}', '${status}', '${eventTime}', '${dateEvent}', now());`, { type: dbMysql.QueryTypes.INSERT });
+              await dbMysql.query(`INSERT INTO evento_nvr_dvr.db_evento (EMAIL_SUBJECT, CSID, PARTICAO, ID_EMPRESA, TIPO_EVENTO, CHANNEL, STATUS, HORA_EVENTO, DT_CREATED, CHECAR_DATA) VALUES ('${mailSubject}', '${csid}', '${partition}', '${idEmp}', '${error}', '${channels}', '${status}', '${eventTime}', '${dateEventObject}', now());`, { type: dbMysql.QueryTypes.INSERT });
 
               // await dbMysql.query( `INSERT INTO DB_EVENTO ( EMAIL_SUBJECT, PARTICAO,  CSID, ID_EMPRESA, TIPO_EVENTO, DT_CREATED, STATUS, HORA_EVENTO) VALUES ( '${mailSubject}', '${partition}','${csid}', '${idEmp}', '${error}', '${dateEvent}', '${status}', '${eventTime}')` );
               console.log("EVENTO SALVO COM SUCESSO");
@@ -130,7 +131,7 @@ function readEmail() {
                   console.log("EVENTO REPETIDO", obj.CSID, obj.CHANNEL, obj.PARTICAO, obj.ID_EMPRESA);
                   logger.info("EVENTO REPETIDO", obj.CSID, obj.CHANNEL, obj.PARTICAO, obj.ID_EMPRESA);
                   try {
-                    await dbMysql.query( `INSERT INTO db_evento ( EMAIL_SUBJECT, CSID, PARTICAO, ID_EMPRESA, TIPO_EVENTO, CHANNEL, STATUS, DT_CREATED, HORA_EVENTO) VALUES ( '${mailSubject}', '${csid}', '${partition}','${idEmp}', '${error}', '${channels}', '${statusRepetido}','${dateEvent}', '${eventTime}');`, { type: dbMysql.QueryTypes.INSERT } );
+                    await dbMysql.query( `INSERT INTO db_evento ( EMAIL_SUBJECT, CSID, PARTICAO, ID_EMPRESA, TIPO_EVENTO, CHANNEL, STATUS, DT_CREATED, HORA_EVENTO) VALUES ( '${mailSubject}', '${csid}', '${partition}','${idEmp}', '${error}', '${channels}', '${statusRepetido}','${dateEventObject}', '${eventTime}');`, { type: dbMysql.QueryTypes.INSERT } );
                   } catch (e) {
                     console.log("Erro ao salvar evento", e);
                     logger.info("Erro ao salvar evento", e);
@@ -150,7 +151,7 @@ function readEmail() {
             try {
 
               await dbMysql.query(
-                `INSERT INTO db_evento ( EMAIL_SUBJECT, CSID, PARTICAO, ID_EMPRESA, TIPO_EVENTO, CHANNEL, STATUS, DT_CREATED, HORA_EVENTO) VALUES ( '${mailSubject}', '${csid}', '${partition}','${idEmp}', '${error}', '${channels}', '${status}','${dateEvent}', '${eventTime}');`
+                `INSERT INTO db_evento ( EMAIL_SUBJECT, CSID, PARTICAO, ID_EMPRESA, TIPO_EVENTO, CHANNEL, STATUS, DT_CREATED, HORA_EVENTO) VALUES ( '${mailSubject}', '${csid}', '${partition}','${idEmp}', '${error}', '${channels}', '${status}','${dateEventObject}', '${eventTime}');`
               );
               console.log("EVENTO SALVO COM SUCESSO");
               logger.info("EVENTO SALVO COM SUCESSO");
@@ -187,7 +188,7 @@ function readEmail() {
                   logger.info("EVENTO REPETIDO", obj.CSID, obj.TIPO_EVENTO,obj.CHANNEL, obj.PARTICAO);
                   console.log("EVENTO REPETIDO", obj.CSID, obj.TIPO_EVENTO,obj.CHANNEL, obj.PARTICAO);
                   try {
-                    await dbMysql.query( `INSERT INTO DB_EVENTO ( EMAIL_SUBJECT, PARTICAO,  CSID, ID_EMPRESA, TIPO_EVENTO, DT_CREATED, STATUS, HORA_EVENTO) VALUES ( '${mailSubject}', '${partition}','${csid}', '${idEmp}', '${error}', '${dateEvent}', '${statusRepetido}', '${eventTime}')` );
+                    await dbMysql.query( `INSERT INTO DB_EVENTO ( EMAIL_SUBJECT, PARTICAO,  CSID, ID_EMPRESA, TIPO_EVENTO, DT_CREATED, STATUS, HORA_EVENTO) VALUES ( '${mailSubject}', '${partition}','${csid}', '${idEmp}', '${error}', '${dateEventObject}', '${statusRepetido}', '${eventTime}')` );
                   } catch (e) {
                     console.log("Erro ao salvar evento", e);
                     logger.info("Erro ao salvar evento", e);
@@ -206,7 +207,7 @@ function readEmail() {
             try {
 
               await dbMysql.query(
-                `INSERT INTO db_evento ( EMAIL_SUBJECT, CSID, PARTICAO, ID_EMPRESA, TIPO_EVENTO, CHANNEL, STATUS, DT_CREATED, HORA_EVENTO) VALUES ( '${mailSubject}', '${csid}', '${partition}','${idEmp}', '${error}', '${channels}', '${status}','${dateEvent}', '${eventTime}');`
+                `INSERT INTO db_evento ( EMAIL_SUBJECT, CSID, PARTICAO, ID_EMPRESA, TIPO_EVENTO, CHANNEL, STATUS, DT_CREATED, HORA_EVENTO) VALUES ( '${mailSubject}', '${csid}', '${partition}','${idEmp}', '${error}', '${channels}', '${status}','${dateEventObject}', '${eventTime}');`
               );
               logger.info("Evento salvo com sucesso");
               console.log("Evento salvo com sucesso");
